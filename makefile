@@ -1,1 +1,3 @@
-# Please implement your Makefile rules and targets below.
+all: clean run
+
+run:
