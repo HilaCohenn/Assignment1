@@ -1,13 +1,16 @@
-all: clean run
+all: link
 
-run: bin/Auxiliary.o bin/main.o
-	g++ -o bin/main bin/Auxiliary.o bin/main.o
+link: compile
+	@echo 'Linking'
+	g++ -o bin/main bin/main.o bin/Auxiliary.o
 
-bin/Auxiliary.o: src/Auxiliary.cpp
-	g++ -g -wall -weffc++ -std=c++11 -Iinclude -o bin/Auxiliary.o src/Auxiliary.cpp
 
-bin/main.o: src/main.cpp
-	g++ -g -wall -weffc -std=c++11 -c -Iinclude -o bin/main.o src/main/cpp
+compile: src/main.cpp src/Auxiliary.cpp
+	@echo "Compiling source code"
+	g++ -g -c -Wall -Wextra -std=c++11 -I./Include -o bin/main.o src/main.cpp
+	g++ -g -c -Wall -Wextra -std=c++11 -I./Include -o bin/Auxiliary.o src/Auxiliary.cpp
 
-clean:
-	rm -f bin/*.o
+clean: 
+	@echo "Cleaning bin"
+	rm -rf ./bin/*
+

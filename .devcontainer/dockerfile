@@ -16,3 +16,5 @@ RUN tar -xvf apache-maven-3.6.3-bin.tar.gz
 RUN mv apache-maven-3.6.3 /opt/
 RUN rm apache-maven-3.6.3-bin.tar.gz
 ENV PATH="/opt/apache-maven-3.6.3/bin:$PATH"
+RUN apt-get update && apt-get install -y git
+
