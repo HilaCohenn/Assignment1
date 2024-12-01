@@ -68,4 +68,5 @@
         "random": "cpp"
     },
     "terminal.integrated.inheritEnv": false,
+    "C_Cpp.errorSquiggles": "disabled",
 }

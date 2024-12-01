@@ -1,58 +1,137 @@
-#pragma once
-#include <string>
-#include <vector>
 #include "SelectionPolicy.h"
-#include <iostream>
-#include <algorithm>
 using namespace std;
-using std::string;
-using std::vector;
+#include <stdexcept>
+#include <algorithm>
+#include <initializer_list>
 
-// hila
+//Naive Selection
+NaiveSelection::NaiveSelection():SelectionPolicy(),lastSelectedIndex(-1){}
 
-//naive
-NaiveSelection::NaiveSelection() : lastSelectedIndex(-1) {}
+NaiveSelection::NaiveSelection(const NaiveSelection& other): SelectionPolicy(), lastSelectedIndex(other.lastSelectedIndex){}
+
 const FacilityType& NaiveSelection::selectFacility(const vector<FacilityType>& facilitiesOptions){
-    lastSelectedIndex++;
+        if (facilitiesOptions.empty()) {
+        throw std::out_of_range("facilitiesOptions is empty");
+    }
+    lastSelectedIndex+=1;
+    lastSelectedIndex=(lastSelectedIndex%facilitiesOptions.size());
     return facilitiesOptions[lastSelectedIndex];
 }
+
 const string NaiveSelection::toString() const {
-    return "NaiveSelection";
-}
+    return "SelectionPolicy: nve";}
 
-NaiveSelection* NaiveSelection::clone() const {
-    return new NaiveSelection(*this);
-}
+NaiveSelection* NaiveSelection::clone() const 
+{return new NaiveSelection(*this);}
 
-// Balanced
-BalancedSelection::BalancedSelection(int LifeQualityScore, int EconomyScore, int EnvironmentScore)
-    : LifeQualityScore(LifeQualityScore), EconomyScore(EconomyScore), EnvironmentScore(EnvironmentScore) {}
+//BalancedSelection
+BalancedSelection::BalancedSelection(int LifeQualityScore, int EconomyScore, int EnvironmentScore):SelectionPolicy(),LifeQualityScore(LifeQualityScore),
+EconomyScore(EconomyScore),EnvironmentScore(EnvironmentScore){};
 
-const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>& facilitiesOptions){
-    const FacilityType* bestFacility = nullptr;
-    int bestBalance = std::numeric_limits<int>::max(); 
+BalancedSelection::BalancedSelection(const BalancedSelection& other):SelectionPolicy(),LifeQualityScore(other.LifeQualityScore),
+EconomyScore(other.EconomyScore),EnvironmentScore(other.EnvironmentScore){};
 
-    for (const FacilityType& facility : facilitiesOptions) {
-        int newLifeQualityScore = LifeQualityScore + facility.getLifeQualityScore();
-        int newEconomyScore = EconomyScore + facility.getEconomyScore();
-        int newEnvironmentScore = EnvironmentScore + facility.getEnvironmentScore();
-
-        int maxScore = std::max({newLifeQualityScore, newEconomyScore, newEnvironmentScore});
-        int minScore = std::min({newLifeQualityScore, newEconomyScore, newEnvironmentScore});
-        int balance = maxScore - minScore;
-
-        if (balance < bestBalance) {
-            bestBalance = balance;
-            bestFacility = &facility;
+  int BalancedSelection::findDiffrence(int LifeQualityScore,int EconomyScore,int EnvironmentScore){
+    int max=LifeQualityScore;
+    int min=LifeQualityScore;
+    if(EconomyScore>EnvironmentScore)
+    {
+        if(EconomyScore>max)
+        {
+            max=EconomyScore;
+        }
+        if(EnvironmentScore<min)
+        {
+            min=EnvironmentScore;
         }
     }
-    return *bestFacility;
+    else
+    {
+          if(EnvironmentScore>max)
+        {
+            max=EnvironmentScore;
+        }
+           if(EconomyScore<min)
+        {
+            min=EconomyScore;
+        }
+    }
+    return max-min;
+  }
+
+const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>& facilitiesOptions) 
+{
+    int bal_index=0;
+    int minDiffrence=0;
+    int diffrence=0;
+    int totalLifeQuality;
+    int totalEconomy;
+    int totalEnviorment;
+    for(size_t i=0;i<facilitiesOptions.size();i++)
+    {totalLifeQuality=LifeQualityScore+facilitiesOptions[i].getLifeQualityScore();
+     totalEconomy=EconomyScore+facilitiesOptions[i].getEconomyScore();
+     totalEnviorment=EnvironmentScore+facilitiesOptions[i].getEnvironmentScore();
+     diffrence=this->findDiffrence(totalLifeQuality,totalEconomy,totalEnviorment);
+     if(diffrence<minDiffrence || i==0)
+     {minDiffrence=diffrence;
+     bal_index=i;}
+    }
+    return facilitiesOptions[bal_index];
 }
 
 const string BalancedSelection::toString() const {
-    return "BalancedSelection";
+    return "SelectionPolicy: bal";
 }
 
-BalancedSelection* BalancedSelection::clone() const {
+BalancedSelection* BalancedSelection::clone() const 
+{
     return new BalancedSelection(*this);
-};
+}
+
+//EconomySelection
+EconomySelection::EconomySelection():SelectionPolicy(),lastSelectedIndex(-1){}
+const FacilityType& EconomySelection::selectFacility(const vector<FacilityType>& facilitiesOptions)
+{
+    lastSelectedIndex+=1;
+    lastSelectedIndex=(lastSelectedIndex%facilitiesOptions.size());
+   while(facilitiesOptions[lastSelectedIndex].getCategory()!=FacilityCategory::ECONOMY)
+   {
+    lastSelectedIndex+=1;
+    lastSelectedIndex=(lastSelectedIndex%facilitiesOptions.size());
+   }
+   return facilitiesOptions[lastSelectedIndex];
+}
+const string EconomySelection::toString() const 
+{
+    return "SelectionPolicy: eco";
+}
+
+EconomySelection* EconomySelection::clone() const 
+{
+    return new EconomySelection(*this);
+}
+
+//Sustainability Selection
+SustainabilitySelection::SustainabilitySelection():SelectionPolicy(),lastSelectedIndex(-1){}
+
+const FacilityType& SustainabilitySelection::selectFacility(const vector<FacilityType>& facilitiesOptions)
+{
+    lastSelectedIndex+=1;
+    lastSelectedIndex=(lastSelectedIndex%facilitiesOptions.size());
+   while(facilitiesOptions[lastSelectedIndex].getCategory()!=FacilityCategory::ENVIRONMENT)
+   {
+    lastSelectedIndex+=1;
+    lastSelectedIndex=(lastSelectedIndex%facilitiesOptions.size());
+   }
+   return facilitiesOptions[lastSelectedIndex];
+}
+
+const string SustainabilitySelection::toString() const 
+{
+    return "SelectionPolicy: env";
+}
+
+SustainabilitySelection* SustainabilitySelection::clone() const 
+{
+    return new SustainabilitySelection(*this);
+}
