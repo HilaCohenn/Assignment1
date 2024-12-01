@@ -14,6 +14,7 @@ class SelectionPolicy {
 class NaiveSelection: public SelectionPolicy {
     public:
         NaiveSelection();
+        NaiveSelection(const NaiveSelection& other);
         const FacilityType& selectFacility(const vector<FacilityType>& facilitiesOptions) override;
         const string toString() const override;
         NaiveSelection *clone() const override;
@@ -25,6 +26,8 @@ class NaiveSelection: public SelectionPolicy {
 class BalancedSelection: public SelectionPolicy {
     public:
         BalancedSelection(int LifeQualityScore, int EconomyScore, int EnvironmentScore);
+        BalancedSelection(const BalancedSelection& other);
+        int findDiffrence(int LifeQualityScore,int EconomyScore,int EnvironmentScore);
         const FacilityType& selectFacility(const vector<FacilityType>& facilitiesOptions) override;
         const string toString() const override;
         BalancedSelection *clone() const override;
