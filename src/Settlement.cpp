@@ -13,6 +13,22 @@ enum class SettlementType {
    
 };
 
+// Overload >> operator
+std::istream& operator>>(std::istream& is, SettlementType& type) {
+    std::string token;
+    is >> token;
+
+    if (token == "CITY") {
+        type = SettlementType::CITY;
+    } else if (token == "VILLAGE") {
+        type = SettlementType::VILLAGE;
+    } else if (token == "METROPOLIS") {
+        type = SettlementType::METROPOLIS;
+    } 
+
+    return is;
+}
+
 class Settlement {
     public:
         Settlement(const string &name, SettlementType type): name(name), type(type){}
