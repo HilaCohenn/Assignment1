@@ -32,54 +32,89 @@ Simulation::Simulation(const string &configFilePath)
             SelectionPolicy *policy;
             if (policyType == "nve")
                 policy = new NaiveSelection();
-            if (policyType == "bal")
+            else if (policyType == "bal")
                 policy = new BalancedSelection(0,0,0);
-            if (policyType == "eco")
+            else if (policyType == "eco")
                 policy = new EconomySelection();
-            if (policyType == "env")
+            else if (policyType == "env")
                 policy = new SustainabilitySelection();
             addPlan (getSettlement(settlementName), policy);
         }
     }
 }
 
-
-
 void Simulation::start() {
-    isRunning = true;
+    open();
     cout << "The simulation has started" << endl;
     string line;
     while (isRunning){
-        // check each line and do things
+        
         getline(cin, line);
         std::vector<std::string> commands = Auxiliary::parseArguments(line);
-
+        BaseAction *action;
+        string actionName = commands[0];
         // Settlement
-        if (commands[0] == "settlement"){
+        if (actionName == "settlement"){
             if (!isSettlementExists(commands[1])){
-                AddSettlement *action = new AddSettlement(commands[1], static_cast<SettlementType>(std::stoi(commands[2])));
-                addAction(action);
-                action->act(*this);
+                action = new AddSettlement(commands[1], static_cast<SettlementType>(std::stoi(commands[2])));
             }
         }
 
         //Facility
-        if (commands[0] == "facility"){
+        else if (actionName == "facility"){
             string facilityName = commands[1];
             int price= stoi(commands[3]), life= stoi(commands[4]), eco= stoi(commands[5]), env= stoi(commands[6]);
             FacilityCategory category = static_cast<FacilityCategory>(stoi(commands[2]));
-            AddFacility *action = new AddFacility(facilityName, category, price, life, eco, env);
-            addAction(action);
-            action->act(*this);
+            action = new AddFacility(facilityName, category, price, life, eco, env);
         }
 
         //Plan
-        if (commands[0] == "plan"){
+        else if (actionName == "plan"){
             string settlementName= commands[1], policyType= commands[2];
-            AddPlan *action = new AddPlan (settlementName, policyType);
-            addAction(action);
-            action->act(*this);
+            action = new AddPlan (settlementName, policyType);
         }
+
+        // simulate step
+        else if (actionName == "step"){
+            int num = stoi(commands[1]);
+            action = new SimulateStep (num);
+        }
+
+        // print plan status
+        else if(actionName == "planStatus"){
+            int id = stoi(commands[1]);
+            action = new PrintPlanStatus(id);
+        }
+
+        // change plan policy
+        else if(actionName == "changePolicy"){
+            int id = stoi(commands[1]);
+            string policy = commands[2];
+            action = new ChangePlanPolicy (id, policy);
+        } 
+
+        // print actions log
+        else if (actionName == "log"){
+            action = new PrintActionsLog();
+        }
+
+        // close
+        else if (actionName == "close"){
+            action = new Close();
+        }
+
+        // backup simulation
+        else if (actionName == "backup"){
+            action = new BackupSimulation();
+        }
+
+        // restore simulation
+        else if (actionName == "restore"){
+            action = new RestoreSimulation();
+        }
+
+        addAction(action);
+        action->act(*this);
     }
 }
 
@@ -93,13 +128,18 @@ void Simulation::addAction(BaseAction *action) {
 }
 
 bool Simulation::addSettlement(Settlement *settlement) {
+    if (isSettlementExists){
+        return false;
+    }
     settlements.push_back(settlement);
-    return true; //Default return
+    return true;
 }
 
 bool Simulation::addFacility(FacilityType facility) {
+    if (isFacilityExists)
+        return false;
     facilitiesOptions.push_back(facility);
-    return true; // Default return
+    return true; 
 }
 
 bool Simulation::isSettlementExists(const string &settlementName) {
@@ -108,6 +148,21 @@ bool Simulation::isSettlementExists(const string &settlementName) {
             return true;
     }
     return false;
+}
+
+bool Simulation::isFacilityExists(const string &facilityName) {
+    for (FacilityType facility: facilitiesOptions){
+        if (facility.getName() == facilityName)
+            return true;
+    }
+    return false;
+}
+
+bool Simulation::isPlanExists(const string &settlementName, const string policy) {
+    if (isSettlementExists(settlementName) && (policy== "nve"||policy=="bal"||policy=="eco"||policy=="env"))
+        return true;
+    else 
+        return false;
 }
 
 Settlement &Simulation::getSettlement(const string &settlementName) {
@@ -120,6 +175,9 @@ Settlement &Simulation::getSettlement(const string &settlementName) {
     return;
 }
 
+vector<BaseAction*> &Simulation::getactionsLog (){
+    return actionsLog;
+}
 Plan &Simulation::getPlan(const int planID) {
     for (Plan plan : plans){
         if (plan.getPlanID()== planID)
@@ -135,7 +193,10 @@ void Simulation::step() {
 
 void Simulation::close() {
     isRunning = false;
-    //add more as we go 
+    for(Plan plan: plans)
+    {
+      cout <<plan.toString()<< endl;
+    }
 }
 
 void Simulation::open() {
