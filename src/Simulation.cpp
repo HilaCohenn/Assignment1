@@ -12,7 +12,7 @@
 using namespace std;
 
 Simulation::Simulation(const string &configFilePath) 
-    : isRunning(false), planCounter(0) {
+    : isRunning(false), planCounter(0), actionsLog(), plans(), settlements(), facilitiesOptions() {
     std::ifstream configFile(configFilePath);
 
     string line;
@@ -128,7 +128,7 @@ void Simulation::addAction(BaseAction *action) {
 }
 
 bool Simulation::addSettlement(Settlement *settlement) {
-    if (isSettlementExists){
+    if (isSettlementExists(settlement->getName())){
         return false;
     }
     settlements.push_back(settlement);
@@ -136,7 +136,7 @@ bool Simulation::addSettlement(Settlement *settlement) {
 }
 
 bool Simulation::addFacility(FacilityType facility) {
-    if (isFacilityExists)
+    if (isFacilityExists(facility.getName()))
         return false;
     facilitiesOptions.push_back(facility);
     return true; 
@@ -165,24 +165,28 @@ bool Simulation::isPlanExists(const string &settlementName, const string policy)
         return false;
 }
 
-Settlement &Simulation::getSettlement(const string &settlementName) {
+Settlement &Simulation::getSettlement(const string &settlementName) { 
     for (Settlement* settlement: settlements){
         if (settlement->getName() == settlementName){
-            
+                
             return *settlement;
         }
     }
-    return;
+        cout << "we searched for non existing settlement" << endl;
+        return *settlements[0]; // we should not get here 
 }
+
 
 vector<BaseAction*> &Simulation::getactionsLog (){
     return actionsLog;
 }
 Plan &Simulation::getPlan(const int planID) {
+    Plan *getplan;
     for (Plan plan : plans){
         if (plan.getPlanID()== planID)
-            return plan;
+            getplan= &plan;
     }
+    return *getplan;
 }
 
 void Simulation::step() {
