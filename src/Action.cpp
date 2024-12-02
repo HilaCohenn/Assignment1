@@ -1,13 +1,17 @@
 #include "Action.h"
+#include "SelectionPolicy.h"
 #include <iostream>
 #include <string>
 using namespace std
  
  //shira
- 
-BaseAction::BaseAction();//ToDo
+using namespace std;
 
-BaseAction::ActionStatus getStatus() const
+BaseAction::BaseAction(){
+
+}//ToDo
+
+ActionStatus BaseAction:: getStatus() const
 {
     return status;
 }
@@ -28,10 +32,6 @@ const string& BaseAction::getErrorMsg() const
     return errorMsg;
 }
 
-    private:
-        string errorMsg;
-        ActionStatus status;
-
 //simulateStep
 SimulateStep::SimulateStep(const int numOfSteps): numOfSteps(numOfSteps){}
 
@@ -42,7 +42,7 @@ void SimulateStep::act(Simulation &simulation)
         simulation.step();
     }
 }
-const string SimulateStep::toString()
+const string SimulateStep::toString() const
 {
     return "step";
 }
@@ -58,15 +58,15 @@ selectionPolicy(selectionPolicy){}
 
 void AddPlan::act(Simulation &simulation)
 {
-    SelectionPolicy Policy;
+    SelectionPolicy *policy;
             if (selectionPolicy == "nve")
-                policy = NaiveSelection();
+                policy = new NaiveSelection();
             if (selectionPolicy == "bal")
-                policy = BalancedSelection(0,0,0);
+                policy = new BalancedSelection(0,0,0);
             if (selectionPolicy == "eco")
-                policy = EconomySelection();
+                policy = new EconomySelection();
             if (selectionPolicy == "env")
-                policy = SustainabilitySelection();
+                policy = new SustainabilitySelection();
     simulation.addPlan(simulation.getSettlement(settlementName),policy);
 }
 
@@ -81,11 +81,11 @@ AddPlan* AddPlan::clone() const
 
 //add settlement
 AddSettlement::AddSettlement(const string &settlementName,SettlementType settlementType):
-settlementName(settlementName), SettlementType(settlementType) {}
+settlementName(settlementName), settlementType(settlementType) {}
 
 void AddSettlement::act(Simulation &simulation)
 {
-    Settlement* sett= new Settlement(settlementName,SettlementType);
+    Settlement* sett= new Settlement(settlementName,settlementType);
     simulation.addSettlement(sett);
 }
 
@@ -113,7 +113,7 @@ AddFacility* AddFacility::clone() const
 {
     return new AddFacility(*this);
 }
-const string AddFacilitytoString() const
+const string AddFacility::toString() const
 {
     return "Add facility";
 }
@@ -124,22 +124,21 @@ PrintPlanStatus::PrintPlanStatus(int planId):planId(planId){}
 void PrintPlanStatus::act(Simulation &simulation)
 {
    
-     std::cout << simulation.getPlan(planId).toString(); << std::endl;
+     std::cout << simulation.getPlan(planId).toString() << std::endl;
     
 }
 PrintPlanStatus* PrintPlanStatus::clone() const
 {
     return new PrintPlanStatus(*this);
 }
-const PrintPlanStatus::string toString() const
+const string PrintPlanStatus:: toString() const
 {
     return "Print Plan Status";
 }
 
 //change plan policy
-class ChangePlanPolicy : public BaseAction {
-ChangePlanPolicy::ChangePlanPolicy(const int planId, const string &newPolicy):
-planId(planId),newPolicy(newPolicy){}
+ChangePlanPolicy::ChangePlanPolicy(const int planId, const string &newPolicy): 
+planId(planId), newPolicy(newPolicy){}
 
 void ChangePlanPolicy::act(Simulation &simulation)
 {
@@ -147,16 +146,17 @@ void ChangePlanPolicy::act(Simulation &simulation)
     Plan p = simulation.getPlan(planId);
     SelectionPolicy* policy;
     if (newPolicy == "nve")
-        policy* = new NaiveSelection();
-    if (newPolicy == "bal")      
+        policy = new NaiveSelection();
+    if (newPolicy == "bal") {     
       int env=p.getEnvironmentScore()+p.getUnderConstructionsEnvironmentScore();
       int eco=p.getEconomyScore()+p.getUnderConstructionsEconomyScore();
       int lifequ=p.getlifeQualityScore()+p.getUnderConstructionslifeQualityScore();
-      policy* = new BalancedSelection(lifequ,eco,env);
+      policy = new BalancedSelection(lifequ,eco,env);
+    }
     if (newPolicy == "eco")
-      policy = EconomySelection();
+      policy = new EconomySelection();
     if (newPolicy == "env")
-      policy* = new SustainabilitySelection();
+      policy = new SustainabilitySelection();
     
     p.setSelectionPolicy(policy);
 }
@@ -170,8 +170,10 @@ const string ChangePlanPolicy::toString() const
     return "Change Plan Policy";
 }
 
-PrintActionsLog::PrintActionsLog();//need to do
-void act(Simulation &simulation) override;
+PrintActionsLog::PrintActionsLog(){
+
+}//need to do
+void PrintActionsLog::act(Simulation &simulation) 
 {
 
 }
@@ -183,9 +185,4 @@ const string PrintActionsLog::toString() const
 {
     return "Print Action Log";
 }
-
-
-
-
-
-
+;
