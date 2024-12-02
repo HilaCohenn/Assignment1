@@ -3,6 +3,8 @@
 #include <string>
 using namespace std
  
+ //shira
+ 
 BaseAction::BaseAction();//ToDo
 
 BaseAction::ActionStatus getStatus() const
