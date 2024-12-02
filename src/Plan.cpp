@@ -53,6 +53,11 @@ const int Plan::getPlanID() const
     return plan_id;
 }
 
+const SelectionPolicy& Plan::getSelectionPolicy() const
+{
+    return *(this->selectionPolicy);
+}
+
 const int Plan::getlifeQualityScore() const
 {
     return life_quality_score;

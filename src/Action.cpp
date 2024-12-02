@@ -2,14 +2,12 @@
 #include "SelectionPolicy.h"
 #include <iostream>
 #include <string>
-using namespace std
- 
- //shira
 using namespace std;
+
 
 BaseAction::BaseAction(){
 
-}//ToDo
+}
 
 ActionStatus BaseAction:: getStatus() const
 {
@@ -25,6 +23,7 @@ void BaseAction::error(string errorMsg)
 {
     status=ActionStatus::ERROR;
     this->errorMsg=errorMsg;
+    std::cout <<"Error :"<< this->getErrorMsg<< std::endl;
 }
 
 const string& BaseAction::getErrorMsg() const
@@ -41,10 +40,12 @@ void SimulateStep::act(Simulation &simulation)
     {
         simulation.step();
     }
+    this->complete();
 }
+
 const string SimulateStep::toString() const
 {
-    return "step";
+    return "step" + std::to_string(numOfSteps);
 }
 SimulateStep* SimulateStep::clone() const
 {
@@ -58,21 +59,30 @@ selectionPolicy(selectionPolicy){}
 
 void AddPlan::act(Simulation &simulation)
 {
-    SelectionPolicy *policy;
+    if(!simulation.isPlanExists(settlementName,selectionPolicy))
+    {
+        this->error("cannot create this plan");
+    }
+    else
+    {
+        SelectionPolicy *policy;
             if (selectionPolicy == "nve")
                 policy = new NaiveSelection();
-            if (selectionPolicy == "bal")
+            else if (selectionPolicy == "bal")
                 policy = new BalancedSelection(0,0,0);
-            if (selectionPolicy == "eco")
+            else if (selectionPolicy == "eco")
                 policy = new EconomySelection();
-            if (selectionPolicy == "env")
-                policy = new SustainabilitySelection();
-    simulation.addPlan(simulation.getSettlement(settlementName),policy);
+            else if (selectionPolicy == "env")
+                policy = new SustainabilitySelection();   
+
+        simulation.addPlan(simulation.getSettlement(settlementName),policy)
+        this->complete();
+    }
 }
 
 const string AddPlan::toString() const
 {
-    return "Add Plan";
+    return "plan" + settlementName +selectionPolicy;
 }
 AddPlan* AddPlan::clone() const
 {
@@ -86,7 +96,14 @@ settlementName(settlementName), settlementType(settlementType) {}
 void AddSettlement::act(Simulation &simulation)
 {
     Settlement* sett= new Settlement(settlementName,settlementType);
-    simulation.addSettlement(sett);
+    if(simulation.addSettlement(sett))
+    {
+        this->complete();
+    }
+    else
+    {
+        this->error("Settlement already exist");
+    }
 }
 
 AddSettlement* AddSettlement::clone() const
@@ -96,7 +113,12 @@ AddSettlement* AddSettlement::clone() const
 
 const string AddSettlement::toString() const 
 {
-    return "Add settlement";
+    if(settlementType==settlementType::VILLAGE)
+        return "settlement" + settlementName+ "VILLAGE";
+    else if(settlementType==settlementType::METROPOLIS)
+        return "settlement" + settlementName+ "METROPOLIS";
+    else 
+        return "settlement" + settlementName+ "CITY";"
 }
 
 //add Facilty
@@ -107,15 +129,28 @@ economyScore(economyScore),environmentScore(environmentScore){}
 void AddFacility::act(Simulation &simulation)
 {
 FacilityType ft = FacilityType(facilityName,facilityCategory,price,lifeQualityScore,economyScore,environmentScore);
-simulation.addFacility(ft);
+if(simulation.addFacility(ft))
+{
+        this->complete();
+    }
+    else
+    {
+        this->error("Facility already exist");
+    }
 }
+
+
 AddFacility* AddFacility::clone() const 
 {
     return new AddFacility(*this);
 }
 const string AddFacility::toString() const
 {
-    return "Add facility";
+    if(facilityCategory==FacilityCategory::ECONOMY)
+        return "facility" +facilityName+ "ECONOMY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);
+    else if(facilityCategory==FacilityCategory::ENVIRONMENT)
+         return "facility" +facilityName+ "ENVIRONMENT"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);;
+    return "facility" +facilityName+ "LIFE_QUALITY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);;
 }
 
 //Print Plan Status
@@ -123,9 +158,13 @@ PrintPlanStatus::PrintPlanStatus(int planId):planId(planId){}
 
 void PrintPlanStatus::act(Simulation &simulation)
 {
-   
-     std::cout << simulation.getPlan(planId).toString() << std::endl;
-    
+   if(simulation.isPlanExists(planId))
+     {std::cout << simulation.getPlan(planId).toString() << std::endl;
+     this->complete; }
+    else
+    {
+        this->error("Plan doesn't exist.");
+    }
 }
 PrintPlanStatus* PrintPlanStatus::clone() const
 {
@@ -133,7 +172,7 @@ PrintPlanStatus* PrintPlanStatus::clone() const
 }
 const string PrintPlanStatus:: toString() const
 {
-    return "Print Plan Status";
+    return "planStatus"+std::to_string(planId);
 }
 
 //change plan policy
@@ -142,23 +181,36 @@ planId(planId), newPolicy(newPolicy){}
 
 void ChangePlanPolicy::act(Simulation &simulation)
 {
-
-    Plan p = simulation.getPlan(planId);
-    SelectionPolicy* policy;
-    if (newPolicy == "nve")
-        policy = new NaiveSelection();
-    if (newPolicy == "bal") {     
-      int env=p.getEnvironmentScore()+p.getUnderConstructionsEnvironmentScore();
-      int eco=p.getEconomyScore()+p.getUnderConstructionsEconomyScore();
-      int lifequ=p.getlifeQualityScore()+p.getUnderConstructionslifeQualityScore();
-      policy = new BalancedSelection(lifequ,eco,env);
-    }
-    if (newPolicy == "eco")
-      policy = new EconomySelection();
-    if (newPolicy == "env")
-      policy = new SustainabilitySelection();
+    if(simulation.isPlanExists(planId))
+    {
+        Plan p = simulation.getPlan(planId);
+        SelectionPolicy* policy;
+        if (newPolicy == "nve")
+            policy = new NaiveSelection();
+        else if (newPolicy == "bal") {     
+            int env=p.getEnvironmentScore()+p.getUnderConstructionsEnvironmentScore();
+            int eco=p.getEconomyScore()+p.getUnderConstructionsEconomyScore();
+            int lifequ=p.getlifeQualityScore()+p.getUnderConstructionslifeQualityScore();
+            policy = new BalancedSelection(lifequ,eco,env);
+        }
+        else if (newPolicy == "eco")
+           policy = new EconomySelection();
+        else if (newPolicy == "env")
+          policy = new SustainabilitySelection();
     
-    p.setSelectionPolicy(policy);
+        if(p.getSelectionPolicy().toString()!=policy->toString())
+        {
+        p.setSelectionPolicy(policy);
+        this->complete();
+        }
+        else{
+        this->error("cannot change selection policy");
+        }
+    }
+    else
+    {
+        this->error("Plan doesn't exists.");
+    }
 }
 
 ChangePlanPolicy* ChangePlanPolicy::clone() const
@@ -167,15 +219,22 @@ ChangePlanPolicy* ChangePlanPolicy::clone() const
 }
 const string ChangePlanPolicy::toString() const 
 {
-    return "Change Plan Policy";
+    return "ChangePolicy"+std::to_string(planId)+ newPolicy;
 }
 
-PrintActionsLog::PrintActionsLog(){
 
-}//need to do
+//print action log
+PrintActionsLog::PrintActionsLog(){}
 void PrintActionsLog::act(Simulation &simulation) 
 {
-
+    vector<BaseAction*> BA=simulation.getactionsLog();
+    for(size_t i=0;i<BA.size();i++)
+    {
+     if(BA[i]->getStatus==ActionStatus::COMPLETED)
+      std::cout <<BA[i]->toString()+"COMPLETED"<< std::endl;
+      else
+      std::cout <<BA[i]->toString()+"ERROR"<< std::endl;
+    }
 }
 PrintActionsLog* PrintActionsLog::clone() const
 {
@@ -183,6 +242,29 @@ PrintActionsLog* PrintActionsLog::clone() const
 }
 const string PrintActionsLog::toString() const
 {
-    return "Print Action Log";
+    return "log";
 }
-;
+
+//close
+Close::Close(){}
+void Close::act(Simulation &simulation)
+{
+simulation.close();
+this->complete();
+}
+
+Close* Close::clone() const 
+{ return new close(*this);}
+
+const string Close::toString() const
+{
+return "close";
+}
+
+//backup
+BackupSimulation::BackupSimulation();
+void BackupSimulation::act(Simulation &simulation) override;
+BackupSimulation* BackupSimulation::clone() const override;
+const string BackupSimulation::toString() const override;
+
+

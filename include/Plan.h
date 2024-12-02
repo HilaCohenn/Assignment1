@@ -16,6 +16,7 @@ class Plan {
         Plan(const Plan& other);
         Plan(Plan&&);
         const int getPlanID() const;
+        const SelectionPolicy& getSelectionPolicy() const;
         const int getlifeQualityScore() const;
         const int getEconomyScore() const;
         const int getEnvironmentScore() const;
