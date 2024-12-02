@@ -2,8 +2,11 @@
 #include "SelectionPolicy.h"
 #include <iostream>
 #include <string>
-using namespace std;
+using namespace std
  
+ //shira
+using namespace std;
+
 BaseAction::BaseAction(){
 
 }//ToDo
