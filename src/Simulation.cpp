@@ -15,27 +15,30 @@ Simulation::Simulation(const string &configFilePath)
     : isRunning(false), planCounter(0) {
     std::ifstream configFile(configFilePath);
 
-// do a functions that tells me what is the type from the string 
-// and then i can put it in the constructors
-
     string line;
     while (std::getline(configFile, line)) {
-        std::vector<std::string> commands = Auxiliary::parseArguments(line);
+        vector<string> commands = Auxiliary::parseArguments(line);
         if (commands[0] == "settlement") {
-            addSettlement(new Settlement (commands[1], commands[2]));
+            addSettlement(new Settlement (commands[1], static_cast<SettlementType>(stoi(commands[2]))));
         } 
         else if (commands[0] == "facility") {
-            string facilityName;
-            int price, life, eco, env;
-            FacilityCategory category;
-            lineStream >> facilityName >> category >> price >> life >> eco >> env;
-            addFacility(new FacilityType (facilityName, category, price, life, eco, env));
+            string facilityName = commands[1];
+            int price= stoi(commands[3]), life= stoi(commands[4]), eco= stoi(commands[5]), env= stoi(commands[6]);
+            FacilityCategory category = static_cast<FacilityCategory>(stoi(commands[2]));
+            addFacility(FacilityType (facilityName, category, price, life, eco, env));
         } 
         else if (commands[0] == "plan") {
-            string settlementName, policyType;
-            lineStream >> settlementName >> policyType;
-            // Find settlement and add Plan with the appropriate SelectionPolicy
-
+            string settlementName= commands[1], policyType= commands[2];
+            SelectionPolicy *policy;
+            if (policyType == "nve")
+                policy = new NaiveSelection();
+            if (policyType == "bal")
+                policy = new BalancedSelection(0,0,0);
+            if (policyType == "eco")
+                policy = new EconomySelection();
+            if (policyType == "env")
+                policy = new SustainabilitySelection();
+            addPlan (getSettlement(settlementName), policy);
         }
     }
 }
@@ -45,42 +48,44 @@ Simulation::Simulation(const string &configFilePath)
 void Simulation::start() {
     isRunning = true;
     cout << "The simulation has started" << endl;
-    std::istringstream lineStream(line);
-    string command;
-    lineStream >> command;
+    string line;
     while (isRunning){
         // check each line and do things
-        string command;
-        getline(cin, command);
-        if (command == "settlement"){
-            string settlementName;
-            SettlementType settlementType;
-            lineStream >> settlementName >> settlementType;
-            if (!isSettlementExists(settlementName)){
-                AddSettlement *action = new AddSettlement(settlementName, settlementType);
+        getline(cin, line);
+        std::vector<std::string> commands = Auxiliary::parseArguments(line);
+
+        // Settlement
+        if (commands[0] == "settlement"){
+            if (!isSettlementExists(commands[1])){
+                AddSettlement *action = new AddSettlement(commands[1], static_cast<SettlementType>(std::stoi(commands[2])));
                 addAction(action);
                 action->act(*this);
             }
         }
-        if (command == "facility"){
-            string facilityName;
-            int price, life, eco, env;
-            FacilityCategory category;
-            lineStream >> facilityName >> category >> price >> life >> eco >> env;
+
+        //Facility
+        if (commands[0] == "facility"){
+            string facilityName = commands[1];
+            int price= stoi(commands[3]), life= stoi(commands[4]), eco= stoi(commands[5]), env= stoi(commands[6]);
+            FacilityCategory category = static_cast<FacilityCategory>(stoi(commands[2]));
             AddFacility *action = new AddFacility(facilityName, category, price, life, eco, env);
             addAction(action);
             action->act(*this);
         }
-        if (command == "plan"){
 
+        //Plan
+        if (commands[0] == "plan"){
+            string settlementName= commands[1], policyType= commands[2];
+            AddPlan *action = new AddPlan (settlementName, policyType);
+            addAction(action);
+            action->act(*this);
         }
-        
-
-        }
+    }
 }
 
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy) {
-    // Add a new plan
+    plans.push_back(Plan (planCounter, settlement, selectionPolicy, facilitiesOptions));
+    planCounter++;
 }
 
 void Simulation::addAction(BaseAction *action) {
@@ -89,7 +94,7 @@ void Simulation::addAction(BaseAction *action) {
 
 bool Simulation::addSettlement(Settlement *settlement) {
     settlements.push_back(settlement);
-    return true; //default return
+    return true; //Default return
 }
 
 bool Simulation::addFacility(FacilityType facility) {
