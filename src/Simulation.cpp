@@ -205,7 +205,7 @@ bool Simulation::isPlanExists(const string &settlementName, const string policy)
 }
 
 bool Simulation::isPlanExists(int planId) {
-    for (Plan plan : plans){
+    for (const Plan& plan : plans){
         if (plan.getPlanID()== planId)
             return true;
     }
