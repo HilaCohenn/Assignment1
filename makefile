@@ -22,4 +22,4 @@ compile:
 # Clean the build directory
 .PHONY: clean
 clean:
-	rm -f bin/*.o
+	rm -f bin/*.o

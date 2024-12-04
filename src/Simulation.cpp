@@ -46,7 +46,7 @@ Simulation::Simulation(const string &configFilePath)
 // copy constructor
 
 Simulation::Simulation(const Simulation& other): isRunning(other.isRunning), 
-planCounter(other.planCounter), plans(other.plans), facilitiesOptions(other.facilitiesOptions){
+planCounter(other.planCounter), actionsLog(), plans(other.plans),settlements(), facilitiesOptions(other.facilitiesOptions){
 
     for(BaseAction* action: other.actionsLog){
         actionsLog.push_back(action->clone());
@@ -58,6 +58,7 @@ planCounter(other.planCounter), plans(other.plans), facilitiesOptions(other.faci
     }
 }
 
+// Move constructor
 Simulation::Simulation(Simulation&& other): isRunning(other.isRunning), planCounter(other.planCounter),
     actionsLog(move(other.actionsLog)), plans(move(other.plans)), settlements(move(other.settlements)),
     facilitiesOptions(move(other.facilitiesOptions)) {
@@ -247,7 +248,7 @@ void Simulation::open() {
 }
 
 // move operator
-Simulation& Simulation::operator=(Simulation&& other) noexcept {
+Simulation& Simulation::operator=(Simulation&& other) {
     if (this != &other) {
         for (BaseAction* action : actionsLog) {
             delete action;
