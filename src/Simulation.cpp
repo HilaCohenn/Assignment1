@@ -296,8 +296,8 @@ Simulation& Simulation::operator=(const Simulation& other) {
 
     isRunning = other.isRunning;
     planCounter = other.planCounter;
-    facilitiesOptions = other.facilitiesOptions;
-    plans = other.plans;
+    facilitiesOptions =  vector<FacilityType>(other.facilitiesOptions);
+    plans =  vector<FacilityType>(other.plans);
 
     for (Settlement* settlement : other.settlements) {
         settlements.push_back(new Settlement(*settlement));
