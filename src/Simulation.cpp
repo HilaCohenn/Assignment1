@@ -232,6 +232,7 @@ Plan &Simulation::getPlan(const int planID) {
         if (plan.getPlanID() == planID)
             return plan;
     }
+    throw runtime_error("Plan not found: " + to_string(planID));  
 }
 
 void Simulation::step() {
