@@ -44,7 +44,6 @@ Simulation::Simulation(const string &configFilePath)
 }
 
 // copy constructor
-
 Simulation::Simulation(const Simulation& other): isRunning(other.isRunning), 
 planCounter(other.planCounter), actionsLog(), plans(other.plans),settlements(), facilitiesOptions(other.facilitiesOptions){
 
@@ -216,10 +215,10 @@ Settlement &Simulation::getSettlement(const string &settlementName) {
         return *settlements[0]; // we should not get here 
 }
 
-
 vector<BaseAction*> &Simulation::getactionsLog (){
     return actionsLog;
 }
+
 Plan &Simulation::getPlan(const int planID) {
     Plan *getplan;
     for (Plan plan : plans){
