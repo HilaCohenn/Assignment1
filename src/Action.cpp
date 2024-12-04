@@ -43,7 +43,7 @@ void SimulateStep::act(Simulation &simulation)
 
 const string SimulateStep::toString() const
 {
-    return "step" + std::to_string(numOfSteps);
+    return "step " + std::to_string(numOfSteps);
 }
 SimulateStep* SimulateStep::clone() const
 {
@@ -80,7 +80,7 @@ void AddPlan::act(Simulation &simulation)
 
 const string AddPlan::toString() const
 {
-    return "plan" + settlementName +selectionPolicy;
+    return "plan " + settlementName+" " +selectionPolicy;
 }
 AddPlan* AddPlan::clone() const
 {
@@ -112,11 +112,11 @@ AddSettlement* AddSettlement::clone() const
 const string AddSettlement::toString() const 
 {
     if(settlementType==SettlementType::VILLAGE)
-        return "settlement" + settlementName+ "VILLAGE";
+        return "settlement " + settlementName+ "VILLAGE";
     else if(settlementType==SettlementType::METROPOLIS)
-        return "settlement" + settlementName+ "METROPOLIS";
+        return "settlement " + settlementName+ "METROPOLIS";
     else 
-        return "settlement" + settlementName+ "CITY";
+        return "settlement " + settlementName+ "CITY";
 }
 
 //add Facilty
@@ -145,10 +145,10 @@ AddFacility* AddFacility::clone() const
 const string AddFacility::toString() const
 {
     if(facilityCategory==FacilityCategory::ECONOMY)
-       { return "facility" +facilityName+ "ECONOMY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);}
+       { return "facility " +facilityName+ " 1 "+std::to_string(price)+" "+std::to_string(lifeQualityScore)+" "+std::to_string(economyScore)+" "+std::to_string(environmentScore);}
     else if(facilityCategory==FacilityCategory::ENVIRONMENT)
-        { return "facility" +facilityName+ "ENVIRONMENT"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);}
-    return "facility" +facilityName+ "LIFE_QUALITY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);
+        { return "facility " +facilityName+ " 2 "+std::to_string(price)+" "+std::to_string(lifeQualityScore)+" "+std::to_string(economyScore)+" "+std::to_string(environmentScore);}
+    return "facility " +facilityName+ " 0 "+std::to_string(price)+" "+std::to_string(lifeQualityScore)+" "+std::to_string(economyScore)+" "+std::to_string(environmentScore);
 }
 
 //Print Plan Status
@@ -172,7 +172,7 @@ PrintPlanStatus* PrintPlanStatus::clone() const
 }
 const string PrintPlanStatus:: toString() const
 {
-    return "planStatus"+std::to_string(planId);
+    return "planStatus "+std::to_string(planId);
 }
 
 //change plan policy
@@ -219,7 +219,7 @@ ChangePlanPolicy* ChangePlanPolicy::clone() const
 }
 const string ChangePlanPolicy::toString() const 
 {
-    return "ChangePolicy"+std::to_string(planId)+ newPolicy;
+    return "ChangePolicy "+std::to_string(planId)+" "+ newPolicy;
 }
 
 
@@ -228,12 +228,12 @@ PrintActionsLog::PrintActionsLog(){}
 void PrintActionsLog::act(Simulation &simulation) 
 {
     vector<BaseAction*> BA=simulation.getactionsLog();
-    for(size_t i=0;i<BA.size();i++)
+    for(size_t i=0;i<BA.size()-1;i++)
     {
      if(BA[i]->getStatus()==ActionStatus::COMPLETED)
-      std::cout <<BA[i]->toString()+"COMPLETED"<< std::endl;
+      std::cout <<BA[i]->toString()+" COMPLETED"<< std::endl;
       else
-      std::cout <<BA[i]->toString()+"ERROR"<< std::endl;
+      std::cout <<BA[i]->toString()+" ERROR"<< std::endl;
     }
 }
 PrintActionsLog* PrintActionsLog::clone() const
@@ -250,6 +250,7 @@ Close::Close(){}
 void Close::act(Simulation &simulation)
 {
 simulation.close();
+this->complete();
 }
 
 Close* Close::clone() const 
