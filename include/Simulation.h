@@ -13,6 +13,8 @@ class SelectionPolicy;
 class Simulation {
     public:
         Simulation(const string &configFilePath);
+        Simulation(const Simulation& other); // copy constructor
+        Simulation(Simulation&& other); // move constructor
         void start();
         void addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy);
         void addAction(BaseAction *action);
@@ -27,6 +29,10 @@ class Simulation {
         void step();
         void close();
         void open();
+        ~Simulation(); // distructor
+        Simulation& operator=(const Simulation&); // copy assignment
+        Simulation& operator=(Simulation&&); // move Assignment
+
 
     private:
         bool isRunning;

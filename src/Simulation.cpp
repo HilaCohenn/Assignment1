@@ -43,6 +43,45 @@ Simulation::Simulation(const string &configFilePath)
     }
 }
 
+// copy constructor
+
+Simulation::Simulation(const Simulation& other): isRunning(other.isRunning), 
+planCounter(other.planCounter), plans(other.plans), facilitiesOptions(other.facilitiesOptions){
+
+    for(BaseAction* action: other.actionsLog){
+        actionsLog.push_back(action->clone());
+    }
+
+    for(Settlement* settlement: settlements){
+        Settlement* copiedSettlement = new Settlement(settlement->getName(), settlement->getType());
+        settlements.push_back(copiedSettlement);
+    }
+}
+
+Simulation::Simulation(Simulation&& other): isRunning(other.isRunning), planCounter(other.planCounter),
+    actionsLog(move(other.actionsLog)), plans(move(other.plans)), settlements(move(other.settlements)),
+    facilitiesOptions(move(other.facilitiesOptions)) {
+    other.isRunning = false;
+    other.planCounter = 0;
+    other.actionsLog.clear();
+    other.plans.clear();
+    other.settlements.clear();
+    other.facilitiesOptions.clear();
+}
+
+// distructor
+Simulation::~Simulation() {
+    for (BaseAction* action : actionsLog) {
+        delete action;
+    }
+    actionsLog.clear();
+
+    for (Settlement* settlement : settlements) {
+        delete settlement;
+    }
+    settlements.clear();
+}
+
 void Simulation::start() {
     open();
     cout << "The simulation has started" << endl;
@@ -206,3 +245,68 @@ void Simulation::close() {
 void Simulation::open() {
     isRunning = true;
 }
+
+// move operator
+Simulation& Simulation::operator=(Simulation&& other) noexcept {
+    if (this != &other) {
+        for (BaseAction* action : actionsLog) {
+            delete action;
+        }
+        actionsLog.clear();
+        for (Settlement* settlement : settlements) {
+            delete settlement;
+        }
+        settlements.clear();
+
+        isRunning = other.isRunning;
+        planCounter = other.planCounter;
+
+        actionsLog = move(other.actionsLog);
+        plans = move(other.plans);
+        settlements = move(other.settlements);
+        facilitiesOptions = move(other.facilitiesOptions);
+
+        other.isRunning = false;
+        other.planCounter = 0;
+        other.actionsLog.clear();
+        other.settlements.clear();
+        other.plans.clear();
+        other.facilitiesOptions.clear();
+    }
+    return *this;
+}
+
+// operator =
+Simulation& Simulation::operator=(const Simulation& other) {
+
+    if (this == &other) {
+        return *this;
+    }
+
+    for (auto* settlement : settlements) {
+        delete settlement;
+    }
+    settlements.clear();
+
+    for (auto* action : actionsLog) {
+        delete action;
+    }
+    actionsLog.clear();
+
+    isRunning = other.isRunning;
+    planCounter = other.planCounter;
+    facilitiesOptions = other.facilitiesOptions;
+    plans = other.plans;
+
+    for (Settlement* settlement : other.settlements) {
+        settlements.push_back(new Settlement(*settlement));
+    }
+
+    for (BaseAction* action : other.actionsLog) {
+        actionsLog.push_back(action->clone());
+    }
+
+    return *this;
+}
+
+
