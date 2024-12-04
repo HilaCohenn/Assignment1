@@ -1,7 +1,7 @@
 using namespace std;
-//#include "Simulation.h"
+#include "Simulation.h"
 #include <iostream>
-//Simulation* backup = nullptr;
+Simulation* backup = nullptr;
 
 int main(int argc, char** argv){
     if(argc!=2){
@@ -9,11 +9,11 @@ int main(int argc, char** argv){
         return 0;
     }
     string configurationFile = argv[1];
-    /*Simulation simulation(configurationFile);
-    simulation.start();
+    *Simulation simulation(configurationFile);
+    Simulation.start();
     if(backup!=nullptr){
     	delete backup;
     	backup = nullptr;
-    } */
+    } 
     return 0;
 }
