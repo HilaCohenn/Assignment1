@@ -4,7 +4,6 @@
 #include <string>
 using namespace std;
 
-Simulation* backup = nullptr;
 
 BaseAction::BaseAction():errorMsg(""),status(ActionStatus::COMPLETED){}
 
@@ -249,9 +248,6 @@ Close::Close(){}
 void Close::act(Simulation &simulation)
 {
 simulation.close();
-delete backup;
-backup=nullptr;
-this->complete();
 }
 
 Close* Close::clone() const 

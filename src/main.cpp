@@ -9,7 +9,7 @@ int main(int argc, char** argv){
         return 0;
     }
     string configurationFile = argv[1];
-    *Simulation simulation(configurationFile);
+    Simulation simulation(configurationFile);
     simulation.start();
     if(backup!=nullptr){
     	delete backup;
