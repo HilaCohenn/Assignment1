@@ -228,12 +228,10 @@ vector<BaseAction*> &Simulation::getactionsLog (){
 }
 
 Plan &Simulation::getPlan(const int planID) {
-    Plan *getplan;
-    for (Plan plan : plans){
-        if (plan.getPlanID()== planID)
-            getplan= &plan;
+    for (Plan &plan : plans){
+        if (plan.getPlanID() == planID)
+            return plan;
     }
-    return *getplan;
 }
 
 void Simulation::step() {

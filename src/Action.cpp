@@ -157,7 +157,9 @@ PrintPlanStatus::PrintPlanStatus(int planId):planId(planId){}
 void PrintPlanStatus::act(Simulation &simulation)
 {
    if(simulation.isPlanExists(planId))
-     {std::cout << simulation.getPlan(planId).toString() << std::endl;
+     {
+        Plan plan = simulation.getPlan(planId);
+        std::cout << plan.toString() << std::endl;
      this->complete(); }
     else
     {
