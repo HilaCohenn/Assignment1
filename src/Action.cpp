@@ -4,10 +4,9 @@
 #include <string>
 using namespace std;
 
+Simulation* backup = nullptr;
 
-BaseAction::BaseAction(){
-
-}
+BaseAction::BaseAction():errorMsg(""),status(ActionStatus::COMPLETED){}
 
 ActionStatus BaseAction:: getStatus() const
 {
@@ -23,7 +22,7 @@ void BaseAction::error(string errorMsg)
 {
     status=ActionStatus::ERROR;
     this->errorMsg=errorMsg;
-    std::cout <<"Error :"<< this->getErrorMsg<< std::endl;
+    std::cout <<"Error :"<< (this->getErrorMsg())<< std::endl;
 }
 
 const string& BaseAction::getErrorMsg() const
@@ -75,7 +74,7 @@ void AddPlan::act(Simulation &simulation)
             else if (selectionPolicy == "env")
                 policy = new SustainabilitySelection();   
 
-        simulation.addPlan(simulation.getSettlement(settlementName),policy)
+        simulation.addPlan(simulation.getSettlement(settlementName),policy);
         this->complete();
     }
 }
@@ -113,12 +112,12 @@ AddSettlement* AddSettlement::clone() const
 
 const string AddSettlement::toString() const 
 {
-    if(settlementType==settlementType::VILLAGE)
+    if(settlementType==SettlementType::VILLAGE)
         return "settlement" + settlementName+ "VILLAGE";
-    else if(settlementType==settlementType::METROPOLIS)
+    else if(settlementType==SettlementType::METROPOLIS)
         return "settlement" + settlementName+ "METROPOLIS";
     else 
-        return "settlement" + settlementName+ "CITY";"
+        return "settlement" + settlementName+ "CITY";
 }
 
 //add Facilty
@@ -147,10 +146,10 @@ AddFacility* AddFacility::clone() const
 const string AddFacility::toString() const
 {
     if(facilityCategory==FacilityCategory::ECONOMY)
-        return "facility" +facilityName+ "ECONOMY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);
+       { return "facility" +facilityName+ "ECONOMY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);}
     else if(facilityCategory==FacilityCategory::ENVIRONMENT)
-         return "facility" +facilityName+ "ENVIRONMENT"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);;
-    return "facility" +facilityName+ "LIFE_QUALITY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);;
+        { return "facility" +facilityName+ "ENVIRONMENT"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);}
+    return "facility" +facilityName+ "LIFE_QUALITY"+std::to_string(price)+std::to_string(lifeQualityScore)+std::to_string(economyScore)+std::to_string(environmentScore);
 }
 
 //Print Plan Status
@@ -160,7 +159,7 @@ void PrintPlanStatus::act(Simulation &simulation)
 {
    if(simulation.isPlanExists(planId))
      {std::cout << simulation.getPlan(planId).toString() << std::endl;
-     this->complete; }
+     this->complete(); }
     else
     {
         this->error("Plan doesn't exist.");
@@ -230,7 +229,7 @@ void PrintActionsLog::act(Simulation &simulation)
     vector<BaseAction*> BA=simulation.getactionsLog();
     for(size_t i=0;i<BA.size();i++)
     {
-     if(BA[i]->getStatus==ActionStatus::COMPLETED)
+     if(BA[i]->getStatus()==ActionStatus::COMPLETED)
       std::cout <<BA[i]->toString()+"COMPLETED"<< std::endl;
       else
       std::cout <<BA[i]->toString()+"ERROR"<< std::endl;
@@ -250,11 +249,13 @@ Close::Close(){}
 void Close::act(Simulation &simulation)
 {
 simulation.close();
+delete backup;
+backup=nullptr;
 this->complete();
 }
 
 Close* Close::clone() const 
-{ return new close(*this);}
+{ return new Close(*this);}
 
 const string Close::toString() const
 {
@@ -262,9 +263,29 @@ return "close";
 }
 
 //backup
-BackupSimulation::BackupSimulation();
-void BackupSimulation::act(Simulation &simulation) override;
-BackupSimulation* BackupSimulation::clone() const override;
-const string BackupSimulation::toString() const override;
+BackupSimulation::BackupSimulation(){}
+void BackupSimulation::act(Simulation &simulation)
+{
+backup=new Simulation(simulation);
+this->complete();
+}
 
+BackupSimulation* BackupSimulation::clone() const {
+return new BackupSimulation(*this);}
+const string BackupSimulation::toString() const {
+return "backup";}
 
+//restore
+RestoreSimulation::RestoreSimulation(){}
+void RestoreSimulation::act(Simulation &simulation)
+{
+    if(backup)
+    {simulation=*backup;
+    this->complete();} //simulation is changing because its a ref.
+    else
+    {this->error("No backup available");}
+} 
+RestoreSimulation* RestoreSimulation::clone() const
+{return new RestoreSimulation(*this);}
+const string RestoreSimulation::toString() const 
+{return "restore";}

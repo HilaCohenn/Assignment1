@@ -4,6 +4,7 @@
 #include "Simulation.h"
 enum class SettlementType;
 enum class FacilityCategory;
+extern Simulation* backup;
 
 enum class ActionStatus{
     COMPLETED, ERROR
@@ -21,7 +22,7 @@ class BaseAction{
     protected:
         void complete();
         void error(string errorMsg);
-        const string &getErrorMsg() const;
+        const string &getErrorMsg() const;      
 
     private:
         string errorMsg;
