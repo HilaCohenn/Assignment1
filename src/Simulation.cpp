@@ -305,10 +305,14 @@ Simulation& Simulation::operator=(const Simulation& other) {
     }
     actionsLog.clear();
 
+    for (auto plan : plans) {
+            delete plan;
+        }
+        plans.clear();
+
     isRunning = other.isRunning;
     planCounter = other.planCounter;
     facilitiesOptions =  vector<FacilityType>(other.facilitiesOptions);
-    plans =  vector<Plan>(other.plans);
 
     for (Settlement* settlement : other.settlements) {
         settlements.push_back(new Settlement(settlement->getName(),settlement->getType()));
@@ -317,6 +321,10 @@ Simulation& Simulation::operator=(const Simulation& other) {
     for (BaseAction* action : other.actionsLog) {
         actionsLog.push_back(action->clone());
     }
+
+    for (auto plan : other.plans) {
+            plans.push_back(new Plan(*plan));
+        }
 
     return *this;
 }
