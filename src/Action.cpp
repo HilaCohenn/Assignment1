@@ -33,8 +33,7 @@ const string& BaseAction::getErrorMsg() const
 SimulateStep::SimulateStep(const int numOfSteps): numOfSteps(numOfSteps){}
 
 void SimulateStep::act(Simulation &simulation)
-{
-    for(int i=0; i< numOfSteps;i++)
+{    for(int i=0; i< numOfSteps;i++)
     {
         simulation.step();
     }

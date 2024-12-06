@@ -142,19 +142,24 @@ void Plan::addFacility(Facility* facility)
 
 void Plan::step()
 {
+    size_t limit=3;
+    if(settlement.getType()==SettlementType::VILLAGE)
+        {limit=1;}
+    else if(settlement.getType()==SettlementType::CITY)
+        {limit=2;}
+        
     if (status==PlanStatus::AVALIABLE)
     {
-        size_t limit=3;
-        if(settlement.getType()==SettlementType::VILLAGE)
-        {limit=1;}
-        else if(settlement.getType()==SettlementType::CITY)
-        {limit=2;}
         while(underConstruction.size()!=limit)
         {
             Facility* faciltyToAdd= new Facility((*selectionPolicy).selectFacility(facilityOptions),settlement.getName());
             addFacility(faciltyToAdd);
         }
-        for(size_t i=0;i<underConstruction.size();i++)
+       
+
+
+    }
+     for(size_t i=0;i<underConstruction.size();i++)
         {
           if (underConstruction[i]->step() == FacilityStatus::OPERATIONAL)
            {
@@ -163,12 +168,10 @@ void Plan::step()
             i--;
            }
         }
-        if(underConstruction.size()<limit)
+    if(underConstruction.size()<limit)
         {status=PlanStatus::AVALIABLE;}
-        else
+    else
         {status=PlanStatus::BUSY;}
-
-    }
 }
 
 const string Plan::toString() const

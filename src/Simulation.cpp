@@ -45,13 +45,19 @@ Simulation::Simulation(const string &configFilePath)
 
 // copy constructor
 Simulation::Simulation(const Simulation& other): isRunning(other.isRunning), 
-planCounter(other.planCounter), actionsLog(), plans(other.plans),settlements(), facilitiesOptions(other.facilitiesOptions){
+planCounter(other.planCounter), actionsLog(), plans(),settlements(), facilitiesOptions(){
+
+    for(auto plan: other.plans)
+    {plans.push_back(plan);}
+    
+    for(auto ft: other.facilitiesOptions)
+    {facilitiesOptions.push_back(ft);}
 
     for(BaseAction* action: other.actionsLog){
         actionsLog.push_back(action->clone());
     }
 
-    for(Settlement* settlement: settlements){
+    for(Settlement* settlement: other.settlements){
         Settlement* copiedSettlement = new Settlement(settlement->getName(), settlement->getType());
         settlements.push_back(copiedSettlement);
     }
@@ -290,12 +296,12 @@ Simulation& Simulation::operator=(const Simulation& other) {
         return *this;
     }
 
-    for (auto* settlement : settlements) {
+    for (auto settlement : settlements) {
         delete settlement;
     }
     settlements.clear();
 
-    for (auto* action : actionsLog) {
+    for (auto action : actionsLog) {
         delete action;
     }
     actionsLog.clear();
@@ -306,7 +312,7 @@ Simulation& Simulation::operator=(const Simulation& other) {
     plans =  vector<Plan>(other.plans);
 
     for (Settlement* settlement : other.settlements) {
-        settlements.push_back(new Settlement(*settlement));
+        settlements.push_back(new Settlement(settlement->getName(),settlement->getType()));
     }
 
     for (BaseAction* action : other.actionsLog) {
