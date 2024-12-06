@@ -305,10 +305,7 @@ Simulation& Simulation::operator=(const Simulation& other) {
     }
     actionsLog.clear();
 
-    for (auto plan : plans) {
-            delete plan;
-        }
-        plans.clear();
+    plans.clear();
 
     isRunning = other.isRunning;
     planCounter = other.planCounter;
@@ -323,7 +320,7 @@ Simulation& Simulation::operator=(const Simulation& other) {
     }
 
     for (auto plan : other.plans) {
-            plans.push_back(new Plan(*plan));
+            plans.push_back(plan);
         }
 
     return *this;
