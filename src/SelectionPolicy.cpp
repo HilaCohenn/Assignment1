@@ -76,6 +76,10 @@ const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>
      {minDiffrence=diffrence;
      bal_index=i;}
     }
+
+    EnvironmentScore+=facilitiesOptions[bal_index].getEnvironmentScore();
+    LifeQualityScore+=facilitiesOptions[bal_index].getLifeQualityScore();
+    EconomyScore+=facilitiesOptions[bal_index].getEconomyScore();
     return facilitiesOptions[bal_index];
 }
 

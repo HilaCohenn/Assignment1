@@ -236,7 +236,7 @@ Plan &Simulation::getPlan(const int planID) {
 }
 
 void Simulation::step() {
-    for (Plan plan : plans){
+    for (Plan& plan : plans){
         plan.step();
     }
 }

@@ -112,11 +112,11 @@ AddSettlement* AddSettlement::clone() const
 const string AddSettlement::toString() const 
 {
     if(settlementType==SettlementType::VILLAGE)
-        return "settlement " + settlementName+ "VILLAGE";
+        return "settlement " + settlementName+ " 0";
     else if(settlementType==SettlementType::METROPOLIS)
-        return "settlement " + settlementName+ "METROPOLIS";
+        return "settlement " + settlementName+ " 2";
     else 
-        return "settlement " + settlementName+ "CITY";
+        return "settlement " + settlementName+ " 1";
 }
 
 //add Facilty
