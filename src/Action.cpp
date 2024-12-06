@@ -182,7 +182,7 @@ void ChangePlanPolicy::act(Simulation &simulation)
 {
     if(simulation.isPlanExists(planId))
     {
-        Plan p = simulation.getPlan(planId);
+        Plan& p = simulation.getPlan(planId);
         SelectionPolicy* policy;
         if (newPolicy == "nve")
             policy = new NaiveSelection();

@@ -147,7 +147,7 @@ void Plan::step()
         {limit=1;}
     else if(settlement.getType()==SettlementType::CITY)
         {limit=2;}
-        
+
     if (status==PlanStatus::AVALIABLE)
     {
         while(underConstruction.size()!=limit)
