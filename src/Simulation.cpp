@@ -232,7 +232,6 @@ Settlement &Simulation::getSettlement(const string &settlementName) {
 vector<BaseAction*> &Simulation::getactionsLog (){
     return actionsLog;
 }
-
 Plan &Simulation::getPlan(const int planID) {
     for (Plan &plan : plans){
         if (plan.getPlanID() == planID)
