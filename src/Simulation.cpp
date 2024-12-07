@@ -100,9 +100,7 @@ void Simulation::start() {
         string actionName = commands[0];
         // Settlement
         if (actionName == "settlement"){
-            if (!isSettlementExists(commands[1])){
                 action = new AddSettlement(commands[1], static_cast<SettlementType>(std::stoi(commands[2])));
-            }
         }
 
         //Facility
