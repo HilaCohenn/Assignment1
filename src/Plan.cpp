@@ -202,3 +202,15 @@ const string Plan::toString() const
 
     return output.str();  
 }
+const string Plan::toStringforClose() const
+{
+      std::ostringstream output;
+
+    output << "PlanID: " << plan_id << '\n';
+    output << "SettlementName: " << settlement.getName() << '\n';
+    output << "LifeQualityScore: " << life_quality_score << '\n';
+    output << "EconomyScore: " << economy_score << '\n';
+    output << "EnvironmentScore: " << environment_score << '\n';
+
+    return output.str(); 
+}

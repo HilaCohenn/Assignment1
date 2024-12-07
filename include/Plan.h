@@ -29,6 +29,7 @@ class Plan {
         const vector<Facility*> &getFacilities() const;
         void addFacility(Facility* facility);
         const string toString() const;
+        const string toStringforClose() const;
         ~Plan();
         Plan& operator=(const Plan&) = delete;
         Plan& operator=(Plan&&) = delete;

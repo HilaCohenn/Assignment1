@@ -251,7 +251,7 @@ void Simulation::close() {
     isRunning = false;
     for(Plan plan: plans)
     {
-      cout <<plan.toString()<< endl;
+      cout <<plan.toStringforClose()<< endl;
     }
 }
 
