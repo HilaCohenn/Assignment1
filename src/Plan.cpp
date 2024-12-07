@@ -22,6 +22,9 @@ for(size_t i=0;i<other.underConstruction.size();i++)
     underConstruction.push_back(facility);
 }
 }
+const string& Plan::getSettlementName(){
+    return settlement.getName();
+}
 
 Plan::Plan(Plan&& other) : Plan(other.plan_id,other.settlement,other.selectionPolicy,other.facilityOptions)
 {
@@ -123,7 +126,6 @@ const vector<Facility*>& Plan::getFacilities() const
 {
     return facilities;
 }
-
 void Plan::addFacility(Facility* facility)
 {
         if (!facility) {

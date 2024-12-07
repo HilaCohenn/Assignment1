@@ -157,9 +157,10 @@ void Simulation::start() {
         else if (actionName == "restore"){
             action = new RestoreSimulation();
         }
-
-        addAction(action);
+        
         action->act(*this);
+        addAction(action);
+
     }
 }
 
@@ -294,6 +295,12 @@ Simulation& Simulation::operator=(const Simulation& other) {
     if (this == &other) {
         return *this;
     }
+    
+    vector<string> planSettlements;
+    for(Plan p:other.plans){
+         planSettlements.push_back(p.getSettlementName());
+    }
+
 
     for (auto settlement : settlements) {
         delete settlement;
@@ -305,23 +312,20 @@ Simulation& Simulation::operator=(const Simulation& other) {
     }
     actionsLog.clear();
 
-    plans.clear();
-
     isRunning = other.isRunning;
     planCounter = other.planCounter;
     facilitiesOptions =  vector<FacilityType>(other.facilitiesOptions);
-
-    for (Settlement* settlement : other.settlements) {
+     for (Settlement* settlement : other.settlements) {
         settlements.push_back(new Settlement(settlement->getName(),settlement->getType()));
+    }
+    plans.clear();
+    for(Plan p:other.plans){
+         plans.push_back(Plan(p.getPlanID(),getSettlement(planSettlements[p.getPlanID()]),p.getSelectionPolicy().clone(),facilitiesOptions));
     }
 
     for (BaseAction* action : other.actionsLog) {
         actionsLog.push_back(action->clone());
     }
-
-    for (auto plan : other.plans) {
-            plans.push_back(plan);
-        }
 
     return *this;
 }

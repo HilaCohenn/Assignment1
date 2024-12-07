@@ -32,6 +32,7 @@ class Plan {
         ~Plan();
         Plan& operator=(const Plan&) = delete;
         Plan& operator=(Plan&&) = delete;
+        const string& getSettlementName();
 
     private:
         int plan_id;

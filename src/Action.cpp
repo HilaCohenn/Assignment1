@@ -227,7 +227,7 @@ PrintActionsLog::PrintActionsLog(){}
 void PrintActionsLog::act(Simulation &simulation) 
 {
     vector<BaseAction*> BA=simulation.getactionsLog();
-    for(size_t i=0;i<BA.size()-1;i++)
+    for(size_t i=0;i<BA.size();i++)
     {
      if(BA[i]->getStatus()==ActionStatus::COMPLETED)
       std::cout <<BA[i]->toString()+" COMPLETED"<< std::endl;
@@ -278,8 +278,11 @@ RestoreSimulation::RestoreSimulation(){}
 void RestoreSimulation::act(Simulation &simulation)
 {
     if(backup)
-    {simulation=*backup;
-    this->complete();} //simulation is changing because its a ref.
+    {
+    this->complete();
+    simulation=*backup;
+    } //simulation is changing because its a ref.
+
     else
     {this->error("No backup available");}
 } 
