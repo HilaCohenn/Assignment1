@@ -99,6 +99,7 @@ void AddSettlement::act(Simulation &simulation)
     }
     else
     {
+        delete sett;
         this->error("Settlement already exist");
     }
 }
